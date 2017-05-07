@@ -1,0 +1,44 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+     <Button
+        android:id="@+id/public_bt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="识别车牌"
+         android:layout_alignParentTop="true"
+         android:layout_centerHorizontal="true"
+         android:layout_marginTop="98dp" />
+    
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/public_bt" >
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/public_bt" />
+    </ScrollView>
+    <Button
+        android:id="@+id/car_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="车牌号"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="129dp" />
+    <Button
+        android:id="@+id/car_allow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="是否放行"
+        android:layout_marginBottom="57dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/public_bt"
+        android:layout_alignStart="@+id/public_bt" />
+</RelativeLayout>
