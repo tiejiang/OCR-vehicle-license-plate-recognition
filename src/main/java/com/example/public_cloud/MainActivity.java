@@ -1,6 +1,8 @@
 package com.example.public_cloud;
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -11,6 +13,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.public_cloud.database.DatabaseCreate;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -28,6 +32,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Vector;
 
 public class MainActivity extends Activity {
 
@@ -45,6 +50,8 @@ public class MainActivity extends Activity {
 	private final String url = "http://www.netocr.com/api/recog.do"; // http接口调用地址
 	static String result = "";
 
+	private Vector vehicleNum; // load all vehicleNum in the database
+	private SQLiteDatabase database;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -56,6 +63,10 @@ public class MainActivity extends Activity {
 		car_allow = (Button)findViewById(R.id.car_allow);
 		car_allow.setVisibility(View.INVISIBLE);// 初始状态没有进行车牌识别，不显示车牌号
 
+		//check and copy database to the dir
+		new DatabaseCreate(this).createDb();
+		//load student from database
+		loadStudent();
 		public_bt.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -106,11 +117,18 @@ public class MainActivity extends Activity {
 			switch (msg.what) {
 				case 0:
 					String result = (String) msg.obj;
+					String vehicleLicense = getCarNumber(result);
 					Log.d("TIEJIANG", "RESULT FROM SERVER= " + result);
 					tv.setText(result+"\n"+"识别时间："+end_time+"ms"+"\n");
 					car_num.setVisibility(View.VISIBLE);
 					car_allow.setVisibility(View.VISIBLE);
-					car_num.setText("车牌号码为： " + getCarNumber(result));
+					//判断数据库是否有此车牌，如果有则为小区车辆
+					if (vehicleNum.contains(vehicleLicense)){
+						car_num.setText("小区车辆，车牌号码为： " + getCarNumber(result));
+					}else{
+						car_num.setText("非小区车辆!，车牌号码为： " + getCarNumber(result));
+					}
+
 					break;
 				case 1:
 					Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_SHORT).show();
@@ -132,6 +150,46 @@ public class MainActivity extends Activity {
 			Log.d("TIEJIANG", "车牌号码： " + arrayf[8]);
 			return arrayf[8];
 		}
+	}
+	//load student from database
+	private void loadStudent(){
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				vehicleNum = new Vector();
+				Cursor mCursor;
+//				if (stu_class.equals("10")){
+					database = SQLiteDatabase.openOrCreateDatabase(DatabaseCreate.DATABASE_PATH + DatabaseCreate.dbName, null);
+					String sql = "SELECT * FROM vehicle_license ";
+					mCursor = database.rawQuery(sql, null);
+					if (mCursor.moveToFirst()){
+						do {
+							vehicleNum.add(mCursor.getString(mCursor.getColumnIndex("license")));
+						}while (mCursor.moveToNext());
+					}
+					// test code begin
+//					for (int i = 0; i < allStudents.size(); i ++){
+//						Log.d("TIEJIANG", "class_10 student_name= " + allStudents.get(i));
+//					}
+					// test code end
+//				}else if (stu_class.equals("11")){
+//					database = SQLiteDatabase.openOrCreateDatabase(DatabaseCreate.DATABASE_PATH + DatabaseCreate.dbName, null);
+//					String sql = "SELECT * FROM class_11 ";
+//					mCursor = database.rawQuery(sql, null);
+//					if (mCursor.moveToFirst()){
+//						do {
+//							allStudents.add(mCursor.getString(mCursor.getColumnIndex("student_name")));
+//						}while (mCursor.moveToNext());
+//					}
+//					// test code begin
+////					for (int i = 0; i < allStudents.size(); i ++){
+////						Log.d("TIEJIANG", "class_11 student_name= " + allStudents.get(i));
+////					}
+//					// test code end
+//				}
+
+			}
+		}).start();
 	}
 
 	public final String doPost(String url, File file, String key, String secret, String typeId, String format) {
