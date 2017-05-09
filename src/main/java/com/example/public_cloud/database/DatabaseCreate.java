@@ -15,8 +15,8 @@ public class DatabaseCreate {
 
     private Context mContext;
 //    private MyDataBaseHelper mDbHelper;
-    public static String dbName = "attendance.db";//数据库的名字
-    public static String DATABASE_PATH = "/data/data/com.zxing.android/databases/";//数据库在手机里的路径
+    public static String dbName = "vehicle.db";//数据库的名字
+    public static String DATABASE_PATH = "/data/data/com.example.public_cloud/databases/";//数据库在手机里的路径
 
 
     public DatabaseCreate(Context context){
